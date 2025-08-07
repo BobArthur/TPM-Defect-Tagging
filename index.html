@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPM Defect Tag - Digital Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#5D5CDE',
+                        'red-custom': '#B91C1C'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            
+            @page {
+                size: 7in 3in;
+                margin: 0.1in;
+            }
+            
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body { 
+                background: white !important;
+                margin: 0;
+                padding: 0;
+                font-size: 8px !important;
+                line-height: 1.1 !important;
+            }
+            
+            .form-container { 
+                box-shadow: none !important; 
+                border: 1px solid #B91C1C !important;
+                width: 6.8in !important;
+                height: 2.8in !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            .bg-red-custom {
+                background-color: #B91C1C !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .text-white {
+                color: white !important;
+            }
+            
+            /* Header adjustments */
+            .form-container .bg-red-custom {
+                padding: 0.05in !important;
+            }
+            
+            .form-container .bg-red-custom .text-center {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.05in !important;
+            }
+            
+            .form-container .bg-red-custom .inline-block {
+                width: 0.15in !important;
+                height: 0.15in !important;
+                border: 2px solid white !important;
+                margin: 0 !important;
+            }
+            
+            .form-container .bg-red-custom .bg-white {
+                background-color: white !important;
+                color: #B91C1C !important;
+                font-size: 9px !important;
+                font-weight: bold !important;
+                padding: 0.02in 0.05in !important;
+                margin: 0 !important;
+                line-height: 1 !important;
+            }
+            
+            /* Form content adjustments */
+            .form-container .p-6 {
+                padding: 0.08in !important;
+                font-size: 6px !important;
+            }
+            
+            .grid.grid-cols-1.md\\:grid-cols-2 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.05in !important;
+                margin-bottom: 0.05in !important;
+            }
+            
+            .grid.grid-cols-1.lg\\:grid-cols-3 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr 1fr !important;
+                gap: 0.03in !important;
+                margin-bottom: 0.05in !important;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 0.02in !important;
+            }
+            
+            .space-y-2 > * + * {
+                margin-top: 0.01in !important;
+            }
+            
+            .space-y-6 > * + * {
+                margin-top: 0.03in !important;
+            }
+            
+            /* Field adjustments */
+            .flex.items-center.gap-4 {
+                gap: 0.02in !important;
+            }
+            
+            .w-16, .w-20 {
+                width: 0.4in !important;
+                font-size: 6px !important;
+                font-weight: bold !important;
+            }
+            
+            input[type="text"], input[type="date"] {
+                font-size: 6px !important;
+                border-bottom: 1px solid #666 !important;
+                padding: 0.01in !important;
+            }
+            
+            /* Checkbox sections */
+            .border.border-gray-300 {
+                border: 1px solid #666 !important;
+                padding: 0.02in !important;
+            }
+            
+            .border.border-gray-300 h3 {
+                font-size: 7px !important;
+                font-weight: bold !important;
+                margin-bottom: 0.02in !important;
+                text-align: center !important;
+            }
+            
+            .border.border-gray-300 .space-y-2 {
+                font-size: 5px !important;
+            }
+            
+            .border.border-gray-300 input[type="checkbox"] {
+                width: 0.08in !important;
+                height: 0.08in !important;
+                margin-right: 0.01in !important;
+            }
+            
+            .border.border-gray-300 input[type="radio"] {
+                width: 0.08in !important;
+                height: 0.08in !important;
+                margin-right: 0.01in !important;
+            }
+            
+            /* Text areas */
+            textarea {
+                font-size: 6px !important;
+                border: 1px solid #666 !important;
+                padding: 0.01in !important;
+                height: 0.3in !important;
+                resize: none !important;
+            }
+            
+            /* Priority and step sections */
+            .flex.gap-2 label, .flex.gap-4 label {
+                font-size: 6px !important;
+                margin-right: 0.02in !important;
+            }
+            
+            /* Other input fields */
+            input[placeholder] {
+                font-size: 5px !important;
+            }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen p-4">
+    <!-- Dark mode detection script -->
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+    <div class="max-w-4xl mx-auto">
+        <!-- User Info & Tag Type Selector -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 no-print">
+            <!-- User Information -->
+            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-3">User Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Name</label>
+                        <input type="text" id="userName" placeholder="Enter your name" class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded px-3 py-2 text-base focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+                        <input type="text" id="userDept" placeholder="Your department" class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded px-3 py-2 text-base focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shift</label>
+                        <select id="userShift" class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded px-3 py-2 text-base focus:border-primary outline-none">
+     <option value="">Select shift</option>
+                            <option value="1st">1st Shift</option>
+                            <option value="2nd">2nd Shift</option>
+                            <option value="3rd">3rd Shift</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tag Type Selector -->
+            <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 text-center">Select Tag Type</h2>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button id="maintenanceBtn" class="tag-type-btn bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors text-base font-medium active">
+                    🔧 Maintenance Tag
+                </button>
+                <button id="operatorBtn" class="tag-type-btn bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-base font-medium">
+                    👤 Operator Tag
+                </button>
+                <button id="actionBtn" class="tag-type-btn bg-yellow-500 text-black px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors text-base font-medium">
+                    ⚡ Action Tag
+                </button>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-6 no-print">
+            <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
+                <button id="saveBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/80 transition-colors text-base">
+                    💾 Save to Shared Folder
+                </button>
+                <button id="loadBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-base">
+                    📁 Load Single Form
+                </button>
+                <button id="browseBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-base">
+                    📋 Browse Team Forms
+                </button>
+                <button id="batchExportBtn" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors text-base">
+                    📊 Batch Export
+                </button>
+                <button id="printBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-base">
+                    🖨️ Print
+                </button>
+                <button id="clearBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-base">
+                    🗑️ Clear Form
+                </button>
+                <input type="file" id="fileInput" accept=".json" class="hidden">
+                <input type="file" id="batchFileInput" accept=".json" multiple class="hidden">
+            </div>
+        </div>
+
+        <!-- Form Browser Modal -->
+        <div id="formBrowserModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+            <div class="bg-white dark:bg-gray-800 m-4 rounded-lg shadow-xl max-h-screen overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">Team Forms Browser</h3>
+                        <button id="closeBrowserBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Select multiple JSON files from your shared Teams folder to browse and load forms</p>
+                </div>
+                
+                <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                    <button id="selectFilesBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/80 transition-colors text-base">
+                        📁 Select Files from Shared Folder
+                    </button>
+                    <span id="fileCount" class="ml-3 text-sm text-gray-600 dark:text-gray-400"></span>
+                </div>
+                
+                <div class="flex-1 overflow-auto p-4">
+                    <div id="formsList" class="space-y-3">
+                        <p class="text-gray-500 dark:text-gray-400 text-center py-8">Select files to view team forms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAINTENANCE TAG FORM -->
+        <div id="maintenanceForm" class="form-container bg-white dark:bg-gray-800 shadow-lg border-2 border-red-600">
+            <!-- Header -->
+            <div class="bg-red-600 text-white p-4">
+                <div class="text-center">
+                    <div class="inline-block w-8 h-8 border-4 border-white rounded-full mb-2"></div>
+                    <div class="bg-white text-red-600 font-bold text-xl py-2 px-4 mx-4">
+                        TPM DEFECT TAG<br>MAINTENANCE
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="p-6">
+                <!-- Top Row Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">TAG #</label>
+                            <input type="text" id="tagNumber" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">NAME</label>
+                            <input type="text" id="name" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">DATE</label>
+                            <input type="date" id="date" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">MACHINE</label>
+                            <input type="text" id="machine" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">STEP</label>
+                            <div class="flex gap-2">
+                                <label class="flex items-center"><input type="checkbox" name="step" value="1" class="mr-1"> 1</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="2" class="mr-1"> 2</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="3" class="mr-1"> 3</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="4" class="mr-1"> 4</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="5" class="mr-1"> 5</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="6" class="mr-1"> 6</label>
+                                <label class="flex items-center"><input type="checkbox" name="step" value="7" class="mr-1"> 7</label>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">PRIORITY</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center"><input type="radio" name="priority" value="A" class="mr-1"> A</label>
+                                <label class="flex items-center"><input type="radio" name="priority" value="B" class="mr-1"> B</label>
+                                <label class="flex items-center"><input type="radio" name="priority" value="C" class="mr-1"> C</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Sections -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Abnormality -->
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">ABNORMALITY</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="LEAK" class="mr-2"> LEAK</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="WORN" class="mr-2"> WORN</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="BROKEN" class="mr-2"> BROKEN</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="LOOSE" class="mr-2"> LOOSE</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="MISSING" class="mr-2"> MISSING</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="DEFORMED" class="mr-2"> DEFORMED</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="BLOCKED" class="mr-2"> BLOCKED</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="EXCESS VIBRATION" class="mr-2"> EXCESS VIBRATION</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="EXCESS NOISE" class="mr-2"> EXCESS NOISE</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="EXCESS TEMPERATURE" class="mr-2"> EXCESS TEMPERATURE</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="MALFUNCTION" class="mr-2"> MALFUNCTION</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="REDUNDANT EQUIPMENT" class="mr-2"> REDUNDANT EQUIPMENT</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="NO STANDARD" class="mr-2"> NO STANDARD</label>
+                            <label class="flex items-center"><input type="checkbox" name="abnormality" value="OTHER" class="mr-2"> OTHER - PLEASE SPECIFY</label>
+                        </div>
+                        <input type="text" id="abnormalityOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+
+                    <!-- Contamination -->
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">CONTAMINATION</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="LUBRICATION" class="mr-2"> LUBRICATION</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="WATER/LIQUID" class="mr-2"> WATER/LIQUID</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="PRODUCT" class="mr-2"> PRODUCT</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="PROCESS WASTE" class="mr-2"> PROCESS WASTE</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="GAS" class="mr-2"> GAS</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="DIRT" class="mr-2"> DIRT</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="CORROSION" class="mr-2"> CORROSION</label>
+                            <label class="flex items-center"><input type="checkbox" name="contamination" value="OTHER" class="mr-2"> OTHER</label>
+                        </div>
+                        <input type="text" id="contaminationOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+
+                    <!-- Hard to Access -->
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">HARD TO ACCESS TO</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="CLEAN" class="mr-2"> CLEAN</label>
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="INSPECT" class="mr-2"> INSPECT</label>
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="LUBRICATE" class="mr-2"> LUBRICATE</label>
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="REPLACE" class="mr-2"> REPLACE</label>
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="TIGHTEN" class="mr-2"> TIGHTEN</label>
+                            <label class="flex items-center"><input type="checkbox" name="hardAccess" value="OTHER" class="mr-2"> OTHER - PLEASE SPECIFY</label>
+                        </div>
+                        <input type="text" id="hardAccessOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+                </div>
+
+                <!-- Text Areas -->
+                <div class="space-y-6">
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-center text-gray-700 dark:text-gray-300">DEFECT SUMMARY</h3>
+                        <textarea id="defectSummary" rows="4" class="w-full border border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-center text-gray-700 dark:text-gray-300 border-t border-b border-dashed border-gray-400 py-2">CORRECTIVE ACTION TAKEN</h3>
+                        <textarea id="correctiveAction" rows="4" class="w-full border border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPERATOR TAG FORM -->
+        <div id="operatorForm" class="form-container bg-white dark:bg-gray-800 shadow-lg border-2 border-blue-600 hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 text-white p-4">
+                <div class="text-center">
+                    <div class="inline-block w-8 h-8 border-4 border-white rounded-full mb-2"></div>
+                    <div class="bg-white text-blue-600 font-bold text-xl py-2 px-4 mx-4">
+                        TPM DEFECT TAG<br>OPERATOR
+                    </div>
+                </div>
+            </div>
+
+            <!-- Same fields as maintenance but with blue styling -->
+            <div class="p-6">
+                <!-- Same structure as maintenance form -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">TAG #</label>
+                            <input type="text" id="opTagNumber" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">NAME</label>
+                            <input type="text" id="opName" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-16">DATE</label>
+                            <input type="date" id="opDate" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">MACHINE</label>
+                            <input type="text" id="opMachine" class="flex-1 border-b-2 border-gray-400 bg-transparent focus:border-primary outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">STEP</label>
+                            <div class="flex gap-2">
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="1" class="mr-1"> 1</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="2" class="mr-1"> 2</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="3" class="mr-1"> 3</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="4" class="mr-1"> 4</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="5" class="mr-1"> 5</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="6" class="mr-1"> 6</label>
+                                <label class="flex items-center"><input type="checkbox" name="opStep" value="7" class="mr-1"> 7</label>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold text-gray-700 dark:text-gray-300 w-20">PRIORITY</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center"><input type="radio" name="opPriority" value="A" class="mr-1"> A</label>
+                                <label class="flex items-center"><input type="radio" name="opPriority" value="B" class="mr-1"> B</label>
+                                <label class="flex items-center"><input type="radio" name="opPriority" value="C" class="mr-1"> C</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Same checkbox sections as maintenance -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">ABNORMALITY</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="LEAK" class="mr-2"> LEAK</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="WORN" class="mr-2"> WORN</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="BROKEN" class="mr-2"> BROKEN</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="LOOSE" class="mr-2"> LOOSE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="MISSING" class="mr-2"> MISSING</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="DEFORMED" class="mr-2"> DEFORMED</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="BLOCKED" class="mr-2"> BLOCKED</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="EXCESS VIBRATION" class="mr-2"> EXCESS VIBRATION</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="EXCESS NOISE" class="mr-2"> EXCESS NOISE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="EXCESS TEMPERATURE" class="mr-2"> EXCESS TEMPERATURE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="MALFUNCTION" class="mr-2"> MALFUNCTION</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="REDUNDANT EQUIPMENT" class="mr-2"> REDUNDANT EQUIPMENT</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="NO STANDARD" class="mr-2"> NO STANDARD</label>
+                            <label class="flex items-center"><input type="checkbox" name="opAbnormality" value="OTHER" class="mr-2"> OTHER - PLEASE SPECIFY</label>
+                        </div>
+                        <input type="text" id="opAbnormalityOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">CONTAMINATION</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="LUBRICATION" class="mr-2"> LUBRICATION</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="WATER/LIQUID" class="mr-2"> WATER/LIQUID</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="PRODUCT" class="mr-2"> PRODUCT</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="PROCESS WASTE" class="mr-2"> PROCESS WASTE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="GAS" class="mr-2"> GAS</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="DIRT" class="mr-2"> DIRT</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="CORROSION" class="mr-2"> CORROSION</label>
+                            <label class="flex items-center"><input type="checkbox" name="opContamination" value="OTHER" class="mr-2"> OTHER</label>
+                        </div>
+                        <input type="text" id="opContaminationOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">HARD TO ACCESS TO</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="CLEAN" class="mr-2"> CLEAN</label>
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="INSPECT" class="mr-2"> INSPECT</label>
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="LUBRICATE" class="mr-2"> LUBRICATE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="REPLACE" class="mr-2"> REPLACE</label>
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="TIGHTEN" class="mr-2"> TIGHTEN</label>
+                            <label class="flex items-center"><input type="checkbox" name="opHardAccess" value="OTHER" class="mr-2"> OTHER - PLEASE SPECIFY</label>
+                        </div>
+                        <input type="text" id="opHardAccessOther" placeholder="Please specify..." class="w-full mt-2 border-b border-gray-400 bg-transparent focus:border-primary outline-none text-sm px-1 py-1">
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-center text-gray-700 dark:text-gray-300">DEFECT SUMMARY</h3>
+                        <textarea id="opDefectSummary" rows="4" class="w-full border border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+
+                    <div class="border border-gray-300 dark:border-gray-600 p-4">
+                        <h3 class="font-bold text-lg mb-4 text-center text-gray-700 dark:text-gray-300 border-t border-b border-dashed border-gray-400 py-2">CORRECTIVE ACTION TAKEN</h3>
+                        <textarea id="opCorrectiveAction" rows="4" class="w-full border border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION TAG FORM -->
+        <div id="actionForm" class="form-container bg-yellow-400 dark:bg-yellow-500 shadow-lg border-2 border-black hidden">
+            <!-- Header -->
+            <div class="bg-black text-yellow-400 p-4">
+                <div class="text-center">
+                    <div class="inline-block w-8 h-8 border-4 border-yellow-400 rounded-full mb-2"></div>
+                    <div class="bg-yellow-400 text-black font-bold text-xl py-2 px-4 mx-4">
+                        TPM<br>ACTION TAG
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Tag Fields -->
+            <div class="p-6">
+                <div class="space-y-4 text-black">
+                    <div class="flex items-center gap-4">
+                        <label class="font-bold w-32">MACHINE No.</label>
+                        <input type="text" id="actionMachineNo" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                        <label class="font-bold w-16 ml-4">DATE</label>
+                        <input type="date" id="actionDate" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <label class="font-bold w-32">WORK ORDER No.</label>
+                        <input type="text" id="actionWorkOrder" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <label class="font-bold w-32">ORIGINATOR</label>
+                        <input type="text" id="actionOriginator" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="font-bold text-lg mb-4">ISSUE CLASSIFICATION (CHECK ONE)</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center"><input type="checkbox" name="actionClassification" value="QUALITY" class="mr-2"> QUALITY</label>
+                            <label class="flex items-center"><input type="checkbox" name="actionClassification" value="MECHANICAL" class="mr-2"> MECHANICAL</label>
+                            <label class="flex items-center"><input type="checkbox" name="actionClassification" value="SAFETY" class="mr-2"> SAFETY</label>
+                            <label class="flex items-center"><input type="checkbox" name="actionClassification" value="ELECTRICAL" class="mr-2"> ELECTRICAL</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="font-bold text-lg mb-4">ISSUE DESCRIPTION:</h3>
+                        <textarea id="actionIssueDescription" rows="5" class="w-full border-2 border-black bg-transparent focus:border-gray-700 outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="font-bold text-lg mb-4">ISSUE RESOLUTION / ACTION TAKEN:</h3>
+                        <textarea id="actionResolution" rows="5" class="w-full border-2 border-black bg-transparent focus:border-gray-700 outline-none p-2 text-base resize-none"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold w-32">CORRECTED BY</label>
+                            <input type="text" id="actionCorrectedBy" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="font-bold w-16">DATE</label>
+                            <input type="date" id="actionCorrectedDate" class="flex-1 border-b-2 border-black bg-transparent focus:border-gray-700 outline-none text-base px-1 py-1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <script>
+        // Tag type switching
+        let currentTagType = 'maintenance';
+
+        function switchTagType(tagType) {
+            // Hide all forms
+            document.getElementById('maintenanceForm').classList.add('hidden');
+            document.getElementById('operatorForm').classList.add('hidden');
+            document.getElementById('actionForm').classList.add('hidden');
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tag-type-btn').forEach(btn => btn.classList.remove('active', 'ring-2', 'ring-white'));
+            
+            // Show selected form and activate button
+            if (tagType === 'maintenance') {
+                document.getElementById('maintenanceForm').classList.remove('hidden');
+                document.getElementById('maintenanceBtn').classList.add('active', 'ring-2', 'ring-white');
+            } else if (tagType === 'operator') {
+                document.getElementById('operatorForm').classList.remove('hidden');
+                document.getElementById('operatorBtn').classList.add('active', 'ring-2', 'ring-white');
+            } else if (tagType === 'action') {
+                document.getElementById('actionForm').classList.remove('hidden');
+                document.getElementById('actionBtn').classList.add('active', 'ring-2', 'ring-white');
+            }
+            
+            currentTagType = tagType;
+            setDefaultDates();
+        }
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().slice(0, 10);
+            if (currentTagType === 'maintenance') {
+                document.getElementById('date').value = today;
+            } else if (currentTagType === 'operator') {
+                document.getElementById('opDate').value = today;
+            } else if (currentTagType === 'action') {
+                document.getElementById('actionDate').value = today;
+                document.getElementById('actionCorrectedDate').value = today;
+            }
+        }
+
+        // Tag type button events
+        document.getElementById('maintenanceBtn').addEventListener('click', () => switchTagType('maintenance'));
+        document.getElementById('operatorBtn').addEventListener('click', () => switchTagType('operator'));
+        document.getElementById('actionBtn').addEventListener('click', () => switchTagType('action'));
+
+        // Form data management - updated to handle all three tag types
+        function getFormData() {
+            if (currentTagType === 'maintenance') {
+                return {
+                    tagType: 'maintenance',
+                    tagNumber: document.getElementById('tagNumber').value,
+                    name: document.getElementById('name').value,
+                    date: document.getElementById('date').value,
+                    machine: document.getElementById('machine').value,
+                    step: Array.from(document.querySelectorAll('input[name="step"]:checked')).map(cb => cb.value),
+                    priority: document.querySelector('input[name="priority"]:checked')?.value || '',
+                    abnormality: Array.from(document.querySelectorAll('input[name="abnormality"]:checked')).map(cb => cb.value),
+                    abnormalityOther: document.getElementById('abnormalityOther').value,
+                    contamination: Array.from(document.querySelectorAll('input[name="contamination"]:checked')).map(cb => cb.value),
+                    contaminationOther: document.getElementById('contaminationOther').value,
+                    hardAccess: Array.from(document.querySelectorAll('input[name="hardAccess"]:checked')).map(cb => cb.value),
+                    hardAccessOther: document.getElementById('hardAccessOther').value,
+                    defectSummary: document.getElementById('defectSummary').value,
+                    correctiveAction: document.getElementById('correctiveAction').value,
+                    timestamp: new Date().toISOString()
+                };
+            } else if (currentTagType === 'operator') {
+                return {
+                    tagType: 'operator',
+                    tagNumber: document.getElementById('opTagNumber').value,
+                    name: document.getElementById('opName').value,
+                    date: document.getElementById('opDate').value,
+                    machine: document.getElementById('opMachine').value,
+                    step: Array.from(document.querySelectorAll('input[name="opStep"]:checked')).map(cb => cb.value),
+                    priority: document.querySelector('input[name="opPriority"]:checked')?.value || '',
+                    abnormality: Array.from(document.querySelectorAll('input[name="opAbnormality"]:checked')).map(cb => cb.value),
+                    abnormalityOther: document.getElementById('opAbnormalityOther').value,
+                    contamination: Array.from(document.querySelectorAll('input[name="opContamination"]:checked')).map(cb => cb.value),
+                    contaminationOther: document.getElementById('opContaminationOther').value,
+                    hardAccess: Array.from(document.querySelectorAll('input[name="opHardAccess"]:checked')).map(cb => cb.value),
+                    hardAccessOther: document.getElementById('opHardAccessOther').value,
+                    defectSummary: document.getElementById('opDefectSummary').value,
+                    correctiveAction: document.getElementById('opCorrectiveAction').value,
+                    timestamp: new Date().toISOString()
+                };
+            } else if (currentTagType === 'action') {
+                return {
+                    tagType: 'action',
+                    machineNo: document.getElementById('actionMachineNo').value,
+                    date: document.getElementById('actionDate').value,
+                    workOrderNo: document.getElementById('actionWorkOrder').value,
+                    originator: document.getElementById('actionOriginator').value,
+                    classification: Array.from(document.querySelectorAll('input[name="actionClassification"]:checked')).map(cb => cb.value),
+                    issueDescription: document.getElementById('actionIssueDescription').value,
+                    resolution: document.getElementById('actionResolution').value,
+                    correctedBy: document.getElementById('actionCorrectedBy').value,
+                    correctedDate: document.getElementById('actionCorrectedDate').value,
+                    timestamp: new Date().toISOString()
+                };
+            }
+        }
+
+        function setFormData(data) {
+            // Switch to the correct tag type first
+            if (data.tagType) {
+                switchTagType(data.tagType);
+            }
+
+            if (data.tagType === 'maintenance') {
+                document.getElementById('tagNumber').value = data.tagNumber || '';
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('date').value = data.date || '';
+                document.getElementById('machine').value = data.machine || '';
+                
+                // Clear checkboxes
+                document.querySelectorAll('input[name="step"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="priority"]').forEach(rb => rb.checked = false);
+                document.querySelectorAll('input[name="abnormality"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="contamination"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="hardAccess"]').forEach(cb => cb.checked = false);
+                
+                // Set data
+                data.step?.forEach(step => {
+                    const checkbox = document.querySelector(`input[name="step"][value="${step}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                if (data.priority) {
+                    const radio = document.querySelector(`input[name="priority"][value="${data.priority}"]`);
+                    if (radio) radio.checked = true;
+                }
+                
+                data.abnormality?.forEach(abnormality => {
+                    const checkbox = document.querySelector(`input[name="abnormality"][value="${abnormality}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('abnormalityOther').value = data.abnormalityOther || '';
+                
+                data.contamination?.forEach(contamination => {
+                    const checkbox = document.querySelector(`input[name="contamination"][value="${contamination}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('contaminationOther').value = data.contaminationOther || '';
+                
+                data.hardAccess?.forEach(hardAccess => {
+                    const checkbox = document.querySelector(`input[name="hardAccess"][value="${hardAccess}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('hardAccessOther').value = data.hardAccessOther || '';
+                
+                document.getElementById('defectSummary').value = data.defectSummary || '';
+                document.getElementById('correctiveAction').value = data.correctiveAction || '';
+            } else if (data.tagType === 'operator') {
+                // Similar structure for operator form
+                document.getElementById('opTagNumber').value = data.tagNumber || '';
+                document.getElementById('opName').value = data.name || '';
+                document.getElementById('opDate').value = data.date || '';
+                document.getElementById('opMachine').value = data.machine || '';
+                
+                // Clear checkboxes
+                document.querySelectorAll('input[name="opStep"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="opPriority"]').forEach(rb => rb.checked = false);
+                document.querySelectorAll('input[name="opAbnormality"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="opContamination"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[name="opHardAccess"]').forEach(cb => cb.checked = false);
+                
+                // Set data (similar pattern)
+                data.step?.forEach(step => {
+                    const checkbox = document.querySelector(`input[name="opStep"][value="${step}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                if (data.priority) {
+                    const radio = document.querySelector(`input[name="opPriority"][value="${data.priority}"]`);
+                    if (radio) radio.checked = true;
+                }
+                
+                data.abnormality?.forEach(abnormality => {
+                    const checkbox = document.querySelector(`input[name="opAbnormality"][value="${abnormality}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('opAbnormalityOther').value = data.abnormalityOther || '';
+                
+                data.contamination?.forEach(contamination => {
+                    const checkbox = document.querySelector(`input[name="opContamination"][value="${contamination}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('opContaminationOther').value = data.contaminationOther || '';
+                
+                data.hardAccess?.forEach(hardAccess => {
+                    const checkbox = document.querySelector(`input[name="opHardAccess"][value="${hardAccess}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                document.getElementById('opHardAccessOther').value = data.hardAccessOther || '';
+                
+                document.getElementById('opDefectSummary').value = data.defectSummary || '';
+                document.getElementById('opCorrectiveAction').value = data.correctiveAction || '';
+            } else if (data.tagType === 'action') {
+                document.getElementById('actionMachineNo').value = data.machineNo || '';
+                document.getElementById('actionDate').value = data.date || '';
+                document.getElementById('actionWorkOrder').value = data.workOrderNo || '';
+                document.getElementById('actionOriginator').value = data.originator || '';
+                
+                // Clear classification checkboxes
+                document.querySelectorAll('input[name="actionClassification"]').forEach(cb => cb.checked = false);
+                
+                data.classification?.forEach(classification => {
+                    const checkbox = document.querySelector(`input[name="actionClassification"][value="${classification}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                document.getElementById('actionIssueDescription').value = data.issueDescription || '';
+                document.getElementById('actionResolution').value = data.resolution || '';
+                document.getElementById('actionCorrectedBy').value = data.correctedBy || '';
+                document.getElementById('actionCorrectedDate').value = data.correctedDate || '';
+            }
+        }
+
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `p-4 rounded-lg shadow-lg mb-2 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+            messageDiv.textContent = message;
+            container.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Enhanced save with user info and standardized naming
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const userName = document.getElementById('userName').value || 'Unknown';
+            const userDept = document.getElementById('userDept').value || 'Unknown';
+            const userShift = document.getElementById('userShift').value || 'Unknown';
+            
+            if (userName === 'Unknown') {
+                showMessage('Please enter your name before saving', 'error');
+                document.getElementById('userName').focus();
+                return;
+            }
+
+            const data = getFormData();
+            
+            // Add user info to the data
+            data.submittedBy = userName;
+            data.department = userDept;
+            data.shift = userShift;
+            data.submissionTimestamp = new Date().toISOString();
+            
+            // Create standardized filename for shared folder
+            const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
+            const tagId = data.tagNumber || data.machineNo || 'NoID';
+            const machine = (data.machine || data.machineNo || 'NoMachine').replace(/[^a-zA-Z0-9]/g, '');
+            const userNameClean = userName.replace(/[^a-zA-Z0-9]/g, '');
+            
+            const filename = `TPM-${data.tagType}-${timestamp}-${tagId}-${machine}-${userNameClean}.json`;
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showMessage(`Form saved as: ${filename}`, 'success');
+            showMessage('📁 Copy this file to your shared Teams folder!', 'success');
+        });
+
+        // Load form data
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        setFormData(data);
+                        showMessage('Form loaded successfully!');
+                    } catch (error) {
+                        showMessage('Error loading file: Invalid JSON format', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Print functionality
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Export to Excel - updated to handle all tag types
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const data = getFormData();
+            
+            if (data.tagType === 'action') {
+                // Different headers for action tag
+                const headers = [
+                    'Timestamp',
+                    'Tag Type',
+                    'Machine No',
+                    'Date',
+                    'Work Order No',
+                    'Originator',
+                    'Classification - Quality',
+                    'Classification - Safety',
+                    'Classification - Mechanical',
+                    'Classification - Electrical',
+                    'Issue Description',
+                    'Issue Resolution / Action Taken',
+                    'Corrected By',
+                    'Corrected Date'
+                ];
+
+                const dataRow = [
+                    new Date().toLocaleString(),
+                    'Action Tag',
+                    data.machineNo || '',
+                    data.date || '',
+                    data.workOrderNo || '',
+                    data.originator || '',
+                    data.classification?.includes('QUALITY') ? 'Yes' : 'No',
+                    data.classification?.includes('SAFETY') ? 'Yes' : 'No',
+                    data.classification?.includes('MECHANICAL') ? 'Yes' : 'No',
+                    data.classification?.includes('ELECTRICAL') ? 'Yes' : 'No',
+                    data.issueDescription?.replace(/\n/g, ' ') || '',
+                    data.resolution?.replace(/\n/g, ' ') || '',
+                    data.correctedBy || '',
+                    data.correctedDate || ''
+                ];
+
+                const wsData = [headers, dataRow];
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                
+                const colWidths = headers.map((header, i) => {
+                    const maxLength = Math.max(header.length, String(dataRow[i]).length);
+                    return { wch: Math.min(maxLength + 2, 50) };
+                });
+                ws['!cols'] = colWidths;
+
+                XLSX.utils.book_append_sheet(wb, ws, 'TPM Action Tags');
+                XLSX.writeFile(wb, `tpm-action-tag-${data.machineNo || 'unnamed'}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+            } else {
+                // Original defect tag headers for maintenance/operator
+                const headers = [
+                    'Timestamp',
+                    'Tag Type',
+                    'Tag Number', 
+                    'Name', 
+                    'Date', 
+                    'Machine', 
+                    'Step', 
+                    'Priority',
+                    'Abnormality - Leak',
+                    'Abnormality - Worn',
+                    'Abnormality - Broken',
+                    'Abnormality - Loose',
+                    'Abnormality - Missing',
+                    'Abnormality - Deformed',
+                    'Abnormality - Blocked',
+                    'Abnormality - Excess Vibration',
+                    'Abnormality - Excess Noise',
+                    'Abnormality - Excess Temperature',
+                    'Abnormality - Malfunction',
+                    'Abnormality - Redundant Equipment',
+                    'Abnormality - No Standard',
+                    'Abnormality - Other',
+                    'Abnormality Other Description',
+                    'Contamination - Lubrication',
+                    'Contamination - Water/Liquid',
+                    'Contamination - Product',
+                    'Contamination - Process Waste',
+                    'Contamination - Gas',
+                    'Contamination - Dirt',
+                    'Contamination - Corrosion',
+                    'Contamination - Other',
+                    'Contamination Other Description',
+                    'Hard Access - Clean',
+                    'Hard Access - Inspect',
+                    'Hard Access - Lubricate',
+                    'Hard Access - Replace',
+                    'Hard Access - Tighten',
+                    'Hard Access - Other',
+                    'Hard Access Other Description',
+                    'Defect Summary',
+                    'Corrective Action Taken'
+                ];
+
+                const dataRow = [
+                    new Date().toLocaleString(),
+                    data.tagType === 'maintenance' ? 'Maintenance Tag' : 'Operator Tag',
+                    data.tagNumber || '',
+                    data.name || '',
+                    data.date || '',
+                    data.machine || '',
+                    data.step?.join('; ') || '',
+                    data.priority || '',
+                    data.abnormality?.includes('LEAK') ? 'Yes' : 'No',
+                    data.abnormality?.includes('WORN') ? 'Yes' : 'No',
+                    data.abnormality?.includes('BROKEN') ? 'Yes' : 'No',
+                    data.abnormality?.includes('LOOSE') ? 'Yes' : 'No',
+                    data.abnormality?.includes('MISSING') ? 'Yes' : 'No',
+                    data.abnormality?.includes('DEFORMED') ? 'Yes' : 'No',
+                    data.abnormality?.includes('BLOCKED') ? 'Yes' : 'No',
+                    data.abnormality?.includes('EXCESS VIBRATION') ? 'Yes' : 'No',
+                    data.abnormality?.includes('EXCESS NOISE') ? 'Yes' : 'No',
+                    data.abnormality?.includes('EXCESS TEMPERATURE') ? 'Yes' : 'No',
+                    data.abnormality?.includes('MALFUNCTION') ? 'Yes' : 'No',
+                    data.abnormality?.includes('REDUNDANT EQUIPMENT') ? 'Yes' : 'No',
+                    data.abnormality?.includes('NO STANDARD') ? 'Yes' : 'No',
+                    data.abnormality?.includes('OTHER') ? 'Yes' : 'No',
+                    data.abnormalityOther || '',
+                    data.contamination?.includes('LUBRICATION') ? 'Yes' : 'No',
+                    data.contamination?.includes('WATER/LIQUID') ? 'Yes' : 'No',
+                    data.contamination?.includes('PRODUCT') ? 'Yes' : 'No',
+                    data.contamination?.includes('PROCESS WASTE') ? 'Yes' : 'No',
+                    data.contamination?.includes('GAS') ? 'Yes' : 'No',
+                    data.contamination?.includes('DIRT') ? 'Yes' : 'No',
+                    data.contamination?.includes('CORROSION') ? 'Yes' : 'No',
+                    data.contamination?.includes('OTHER') ? 'Yes' : 'No',
+                    data.contaminationOther || '',
+                    data.hardAccess?.includes('CLEAN') ? 'Yes' : 'No',
+                    data.hardAccess?.includes('INSPECT') ? 'Yes' : 'No',
+                    data.hardAccess?.includes('LUBRICATE') ? 'Yes' : 'No',
+                    data.hardAccess?.includes('REPLACE') ? 'Yes' : 'No',
+                    data.hardAccess?.includes('TIGHTEN') ? 'Yes' : 'No',
+                    data.hardAccess?.includes('OTHER') ? 'Yes' : 'No',
+                    data.hardAccessOther || '',
+                    data.defectSummary?.replace(/\n/g, ' ') || '',
+                    data.correctiveAction?.replace(/\n/g, ' ') || ''
+                ];
+
+                const wsData = [headers, dataRow];
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                
+                const colWidths = headers.map((header, i) => {
+                    const maxLength = Math.max(header.length, String(dataRow[i]).length);
+                    return { wch: Math.min(maxLength + 2, 50) };
+                });
+                ws['!cols'] = colWidths;
+
+                XLSX.utils.book_append_sheet(wb, ws, 'TPM Defect Tags');
+                XLSX.writeFile(wb, `tpm-defect-tag-${data.tagNumber || 'unnamed'}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+            }
+            
+            showMessage('Excel table exported successfully!');
+        });
+
+        // Clear form
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(input => input.value = '');
+                document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
+                showMessage('Form cleared successfully!');
+            }
+        });
+
+        // Auto-save draft every 30 seconds (using download instead of localStorage)
+        let autoSaveInterval;
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                const data = getFormData();
+                // Only auto-save if there's actual content
+                if (data.tagNumber || data.name || data.defectSummary || data.correctiveAction) {
+                    // Store in a global variable for potential recovery
+                    window.draftData = data;
+                }
+            }, 30000);
+        }
+
+        // Start auto-save
+        startAutoSave();
+
+        // Clear form - updated for all tag types
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            function showConfirmDialog(message, onConfirm) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="this.closest('.fixed').remove()">Cancel</button>
+                            <button class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded" onclick="this.closest('.fixed').remove(); (${onConfirm.toString()})()">Confirm</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            showConfirmDialog('Are you sure you want to clear all form data?', () => {
+                // Clear all forms
+                document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(input => input.value = '');
+                document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
+                showMessage('Form cleared successfully!');
+                setDefaultDates();
+            });
+        });
+
+        // Form Browser functionality
+        let loadedForms = [];
+
+        document.getElementById('browseBtn').addEventListener('click', () => {
+            document.getElementById('formBrowserModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeBrowserBtn').addEventListener('click', () => {
+            document.getElementById('formBrowserModal').classList.add('hidden');
+        });
+
+        document.getElementById('selectFilesBtn').addEventListener('click', () => {
+            document.getElementById('batchFileInput').click();
+        });
+
+        document.getElementById('batchFileInput').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            loadedForms = [];
+            let loadedCount = 0;
+            
+            document.getElementById('fileCount').textContent = `Loading ${files.length} files...`;
+            document.getElementById('formsList').innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">Loading files...</p>';
+
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        data.filename = file.name;
+                        loadedForms.push(data);
+                    } catch (error) {
+                        console.warn(`Error loading ${file.name}:`, error);
+                    }
+                    
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        displayLoadedForms();
+                    }
+                };
+                reader.readAsText(file);
+            });
+        });
+
+        function displayLoadedForms() {
+            const formsList = document.getElementById('formsList');
+            const fileCount = document.getElementById('fileCount');
+            
+            fileCount.textContent = `Loaded ${loadedForms.length} forms`;
+            
+            if (loadedForms.length === 0) {
+                formsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No valid forms found</p>';
+                return;
+            }
+
+            // Sort by submission timestamp (newest first)
+            loadedForms.sort((a, b) => new Date(b.submissionTimestamp || b.timestamp) - new Date(a.submissionTimestamp || a.timestamp));
+
+            formsList.innerHTML = loadedForms.map((form, index) => {
+                const tagTypeColor = {
+                    'maintenance': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                    'operator': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                    'action': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                };
+
+                const submissionDate = new Date(form.submissionTimestamp || form.timestamp).toLocaleString();
+                const tagId = form.tagNumber || form.machineNo || 'No ID';
+                const machine = form.machine || form.machineNo || 'No Machine';
+                const submittedBy = form.submittedBy || 'Unknown User';
+                const dept = form.department || '';
+                const shift = form.shift || '';
+
+                return `
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-1 rounded text-xs font-medium ${tagTypeColor[form.tagType] || 'bg-gray-100 text-gray-800'}">${form.tagType || 'Unknown'}</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tag #${tagId}</span>
+                            </div>
+                            <button onclick="loadFormFromBrowser(${index})" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+                                Load Form
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <div><strong>Machine:</strong> ${machine}</div>
+                            <div><strong>Submitted by:</strong> ${submittedBy}</div>
+                            ${dept ? `<div><strong>Department:</strong> ${dept}</div>` : ''}
+                            ${shift ? `<div><strong>Shift:</strong> ${shift}</div>` : ''}
+                            <div><strong>Date:</strong> ${submissionDate}</div>
+                        </div>
+                        ${form.defectSummary || form.issueDescription ? `
+                            <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                                <strong>Summary:</strong> ${(form.defectSummary || form.issueDescription || '').substring(0, 100)}${(form.defectSummary || form.issueDescription || '').length > 100 ? '...' : ''}
+                            </div>
+                        ` : ''}
+                        <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            File: ${form.filename}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Global function to load form from browser
+        window.loadFormFromBrowser = function(index) {
+            const form = loadedForms[index];
+            setFormData(form);
+            document.getElementById('formBrowserModal').classList.add('hidden');
+            showMessage(`Form loaded: ${form.filename}`, 'success');
+        };
+
+        // Batch Export functionality
+        document.getElementById('batchExportBtn').addEventListener('click', () => {
+            if (loadedForms.length === 0) {
+                showMessage('Please browse and load forms first using "Browse Team Forms"', 'error');
+                return;
+            }
+
+            // Separate forms by type
+            const defectForms = loadedForms.filter(f => f.tagType === 'maintenance' || f.tagType === 'operator');
+            const actionForms = loadedForms.filter(f => f.tagType === 'action');
+
+            const wb = XLSX.utils.book_new();
+
+            // Export defect forms if any
+            if (defectForms.length > 0) {
+                const defectHeaders = [
+                    'Timestamp',
+                    'Tag Type',
+                    'Tag Number', 
+                    'Name', 
+                    'Date', 
+                    'Machine', 
+                    'Step', 
+                    'Priority',
+                    'Submitted By',
+                    'Department',
+                    'Shift',
+                    'Abnormality - Leak',
+                    'Abnormality - Worn',
+                    'Abnormality - Broken',
+                    'Abnormality - Loose',
+                    'Abnormality - Missing',
+                    'Abnormality - Deformed',
+                    'Abnormality - Blocked',
+                    'Abnormality - Excess Vibration',
+                    'Abnormality - Excess Noise',
+                    'Abnormality - Excess Temperature',
+                    'Abnormality - Malfunction',
+                    'Abnormality - Redundant Equipment',
+                    'Abnormality - No Standard',
+                    'Abnormality - Other',
+                    'Abnormality Other Description',
+                    'Contamination - Lubrication',
+                    'Contamination - Water/Liquid',
+                    'Contamination - Product',
+                    'Contamination - Process Waste',
+                    'Contamination - Gas',
+                    'Contamination - Dirt',
+                    'Contamination - Corrosion',
+                    'Contamination - Other',
+                    'Contamination Other Description',
+                    'Hard Access - Clean',
+                    'Hard Access - Inspect',
+                    'Hard Access - Lubricate',
+                    'Hard Access - Replace',
+                    'Hard Access - Tighten',
+                    'Hard Access - Other',
+                    'Hard Access Other Description',
+                    'Defect Summary',
+                    'Corrective Action Taken'
+                ];
+
+                const defectRows = defectForms.map(form => [
+                    new Date(form.submissionTimestamp || form.timestamp).toLocaleString(),
+                    form.tagType === 'maintenance' ? 'Maintenance Tag' : 'Operator Tag',
+                    form.tagNumber || '',
+                    form.name || '',
+                    form.date || '',
+                    form.machine || '',
+                    form.step?.join('; ') || '',
+                    form.priority || '',
+                    form.submittedBy || '',
+                    form.department || '',
+                    form.shift || '',
+                    form.abnormality?.includes('LEAK') ? 'Yes' : 'No',
+                    form.abnormality?.includes('WORN') ? 'Yes' : 'No',
+                    form.abnormality?.includes('BROKEN') ? 'Yes' : 'No',
+                    form.abnormality?.includes('LOOSE') ? 'Yes' : 'No',
+                    form.abnormality?.includes('MISSING') ? 'Yes' : 'No',
+                    form.abnormality?.includes('DEFORMED') ? 'Yes' : 'No',
+                    form.abnormality?.includes('BLOCKED') ? 'Yes' : 'No',
+                    form.abnormality?.includes('EXCESS VIBRATION') ? 'Yes' : 'No',
+                    form.abnormality?.includes('EXCESS NOISE') ? 'Yes' : 'No',
+                    form.abnormality?.includes('EXCESS TEMPERATURE') ? 'Yes' : 'No',
+                    form.abnormality?.includes('MALFUNCTION') ? 'Yes' : 'No',
+                    form.abnormality?.includes('REDUNDANT EQUIPMENT') ? 'Yes' : 'No',
+                    form.abnormality?.includes('NO STANDARD') ? 'Yes' : 'No',
+                    form.abnormality?.includes('OTHER') ? 'Yes' : 'No',
+                    form.abnormalityOther || '',
+                    form.contamination?.includes('LUBRICATION') ? 'Yes' : 'No',
+                    form.contamination?.includes('WATER/LIQUID') ? 'Yes' : 'No',
+                    form.contamination?.includes('PRODUCT') ? 'Yes' : 'No',
+                    form.contamination?.includes('PROCESS WASTE') ? 'Yes' : 'No',
+                    form.contamination?.includes('GAS') ? 'Yes' : 'No',
+                    form.contamination?.includes('DIRT') ? 'Yes' : 'No',
+                    form.contamination?.includes('CORROSION') ? 'Yes' : 'No',
+                    form.contamination?.includes('OTHER') ? 'Yes' : 'No',
+                    form.contaminationOther || '',
+                    form.hardAccess?.includes('CLEAN') ? 'Yes' : 'No',
+                    form.hardAccess?.includes('INSPECT') ? 'Yes' : 'No',
+                    form.hardAccess?.includes('LUBRICATE') ? 'Yes' : 'No',
+                    form.hardAccess?.includes('REPLACE') ? 'Yes' : 'No',
+                    form.hardAccess?.includes('TIGHTEN') ? 'Yes' : 'No',
+                    form.hardAccess?.includes('OTHER') ? 'Yes' : 'No',
+                    form.hardAccessOther || '',
+                    form.defectSummary?.replace(/\n/g, ' ') || '',
+                    form.correctiveAction?.replace(/\n/g, ' ') || ''
+                ]);
+
+                const defectWsData = [defectHeaders, ...defectRows];
+                const defectWs = XLSX.utils.aoa_to_sheet(defectWsData);
+                XLSX.utils.book_append_sheet(wb, defectWs, 'Defect Tags');
+            }
+
+            // Export action forms if any
+            if (actionForms.length > 0) {
+                const actionHeaders = [
+                    'Timestamp',
+                    'Tag Type',
+                    'Machine No',
+                    'Date',
+                    'Work Order No',
+                    'Originator',
+                    'Submitted By',
+                    'Department',
+                    'Shift',
+                    'Classification - Quality',
+                    'Classification - Safety',
+                    'Classification - Mechanical',
+                    'Classification - Electrical',
+                    'Issue Description',
+                    'Issue Resolution / Action Taken',
+                    'Corrected By',
+                    'Corrected Date'
+                ];
+
+                const actionRows = actionForms.map(form => [
+                    new Date(form.submissionTimestamp || form.timestamp).toLocaleString(),
+                    'Action Tag',
+                    form.machineNo || '',
+                    form.date || '',
+                    form.workOrderNo || '',
+                    form.originator || '',
+                    form.submittedBy || '',
+                    form.department || '',
+                    form.shift || '',
+                    form.classification?.includes('QUALITY') ? 'Yes' : 'No',
+                    form.classification?.includes('SAFETY') ? 'Yes' : 'No',
+                    form.classification?.includes('MECHANICAL') ? 'Yes' : 'No',
+                    form.classification?.includes('ELECTRICAL') ? 'Yes' : 'No',
+                    form.issueDescription?.replace(/\n/g, ' ') || '',
+                    form.resolution?.replace(/\n/g, ' ') || '',
+                    form.correctedBy || '',
+                    form.correctedDate || ''
+                ]);
+
+                const actionWsData = [actionHeaders, ...actionRows];
+                const actionWs = XLSX.utils.aoa_to_sheet(actionWsData);
+                XLSX.utils.book_append_sheet(wb, actionWs, 'Action Tags');
+            }
+
+            // Save the batch export file
+            const exportDate = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `TPM-Batch-Export-${exportDate}-${loadedForms.length}forms.xlsx`);
+            
+            showMessage(`Exported ${loadedForms.length} forms to Excel!`, 'success');
+        });
+
+        // Initialize the app
+        switchTagType('maintenance');
+    </script>
+</body>
+</html>
